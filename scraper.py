@@ -317,28 +317,20 @@ def scrape_ivp_schedule(session):
     """
     events = []
     
-    # Calculate current, next, and month after next URLs (3 months total)
+    # Calculate 5 months of URLs
     today = datetime.date.today()
-    
-    m2_year = today.year
-    m2_month = today.month + 1
-    if m2_month > 12:
-        m2_month = 1
-        m2_year += 1
-    m2_ym = f"{m2_year}-{m2_month:02d}"
-    
-    m3_year = m2_year
-    m3_month = m2_month + 1
-    if m3_month > 12:
-        m3_month = 1
-        m3_year += 1
-    m3_ym = f"{m3_year}-{m3_month:02d}"
-    
-    urls = [
-        (IVP_LOGIN_URL, today.year, today.month),
-        (f"{IVP_LOGIN_URL}?ym={m2_ym}", m2_year, m2_month),
-        (f"{IVP_LOGIN_URL}?ym={m3_ym}", m3_year, m3_month)
-    ]
+    urls = []
+    for i in range(5):
+        m_year = today.year
+        m_month = today.month + i
+        while m_month > 12:
+            m_month -= 12
+            m_year += 1
+        ym_str = f"{m_year}-{m_month:02d}"
+        if i == 0:
+            urls.append((IVP_LOGIN_URL, m_year, m_month))
+        else:
+            urls.append((f"{IVP_LOGIN_URL}?ym={ym_str}", m_year, m_month))
     
     from concurrent.futures import ThreadPoolExecutor
     
@@ -453,7 +445,7 @@ def scrape_ivp_schedule(session):
             st.error(f"IVPスクレイピングエラー（{url}）: {e}")
             return []
 
-    with ThreadPoolExecutor(max_workers=3) as executor:
+    with ThreadPoolExecutor(max_workers=5) as executor:
         results = executor.map(lambda item: fetch_and_parse_ivp(*item), urls)
         for res_events in results:
             events.extend(res_events)

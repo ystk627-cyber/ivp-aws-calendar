@@ -204,19 +204,24 @@ if 'last_login_html' not in st.session_state:
 # Sidebar UI & Controls
 # ==========================================
 st.sidebar.markdown("### 📅 統合カレンダー")
-st.sidebar.title("🛠️ 設定パネル")
 
-# AWS Pages Config
-max_aws_pages = st.sidebar.selectbox("AWS 取得ページ数", options=[3, 4, 5], index=0, help="取得数を増やすと、より未来のセミナーも取得できます")
+# AWS Pages Config (Fixed to 5 pages / 5 months)
+max_aws_pages = 5
+st.sidebar.markdown("#### ☁️ AWSカレンダー")
+st.sidebar.caption("📅 自動取得 (5ヶ月分)")
 fetch_details = st.sidebar.checkbox("AWSの詳細時間も取得する", value=False, help="チェックを入れると各セミナーの詳細ページから開始・終了時間（例：13:00〜16:00）を並列処理で取得します。チェックを外すと終日イベントとして非常に高速に読み込みます。")
 
 # IVP Credentials Section
 st.sidebar.markdown("---")
 st.sidebar.subheader("🔒 IVP ログイン設定")
-st.sidebar.caption("IVP会員スケジュールを取得するために入力してください")
+st.sidebar.caption("IVP会員スケジュールを取得するために入力してください (5ヶ月分同期中)")
 
 input_id = st.sidebar.text_input("IVP ID (Partner No.)", value=st.session_state['ivp_id'], max_chars=6, help="数字6桁 of Partner ID")
 input_pw = st.sidebar.text_input("パスワード", value=st.session_state['ivp_pw'], type="password")
+
+# Success indicator if logged in
+if st.session_state['ivp_session']:
+    st.sidebar.success("🟢 IVPログイン成功")
 
 # Login action
 if input_id != st.session_state['ivp_id'] or input_pw != st.session_state['ivp_pw']:
@@ -234,7 +239,6 @@ if input_id and input_pw and st.session_state['ivp_session'] is None and not st.
         if session:
             st.session_state['ivp_session'] = session
             st.cache_data.clear()
-            st.sidebar.success("ログイン完了しました！")
             st.rerun()
         else:
             st.session_state['ivp_login_error'] = error
@@ -319,7 +323,7 @@ with col3:
     st.markdown(f"""
     <div class="stat-card ivp">
         <div class="stat-title">IVPイベント数 (同期中)</div>
-        <div class="stat-value">{ivp_count if st.session_state['ivp_session'] else '未接続'}</div>
+        <div class="stat-value">{f"{ivp_count} (ログイン成功)" if st.session_state['ivp_session'] else '未接続'}</div>
     </div>
     """, unsafe_allow_html=True)
 
