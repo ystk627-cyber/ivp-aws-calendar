@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.log
+ivp_page*.html
+.tempmediaStorage/
+.agents/
+.gemini/
+*.bat
+*.url
+*.gform
+*.gscript
+*.webp
+*.png
