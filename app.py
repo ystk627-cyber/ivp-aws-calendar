@@ -213,6 +213,7 @@ fetch_details = st.sidebar.checkbox("AWSの詳細時間も取得する", value=F
 
 # IVP Credentials Section
 st.sidebar.markdown("---")
+st.sidebar.markdown("#### 🍊 IVPカレンダー")
 st.sidebar.subheader("🔒 IVP ログイン設定")
 st.sidebar.caption("IVP会員スケジュールを取得するために入力してください (5ヶ月分同期中)")
 
@@ -297,7 +298,7 @@ events = split_multiday_events(get_all_events(max_aws_pages, fetch_details, sess
 # Main Header & Stat Indicators
 # ==========================================
 st.markdown('<h1 class="main-title">📅 IVP・AWS 統合スケジュールカレンダー</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">AWARENESS（AWS）および IVP（WEB会員専用）のスケジュールをリアルタイムで同期・統合して表示します</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">AWARENESS（AWS）と IVP（WEB会員専用）のスケジュールを同期・統合して表示します 🔄✨</p>', unsafe_allow_html=True)
 
 # Count stats
 aws_count = sum(1 for e in events if e['source'] == 'AWS')
@@ -322,8 +323,8 @@ with col2:
 with col3:
     st.markdown(f"""
     <div class="stat-card ivp">
-        <div class="stat-title">IVPイベント数 (同期中)</div>
-        <div class="stat-value">{f"{ivp_count} (ログイン成功)" if st.session_state['ivp_session'] else '未接続'}</div>
+        <div class="stat-title">IVPイベント数（同期中）</div>
+        <div class="stat-value">{ivp_count if st.session_state['ivp_session'] else '未接続'}</div>
     </div>
     """, unsafe_allow_html=True)
 
