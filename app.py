@@ -423,10 +423,9 @@ with tab_calendar:
             document.addEventListener('DOMContentLoaded', function() {{
                 var calendarEl = document.getElementById('calendar');
                 var eventsData = {events_json};
-                var isMobile = window.innerWidth < 768;
                 
                 var calendar = new FullCalendar.Calendar(calendarEl, {{
-                    initialView: isMobile ? 'listMonth' : 'dayGridMonth',
+                    initialView: 'dayGridMonth',
                     locale: 'ja',
                     headerToolbar: {{
                         left: 'prev,next today',
@@ -450,13 +449,6 @@ with tab_calendar:
                     }},
                     eventMouseLeave: function(info) {{
                         info.el.style.opacity = 1.0;
-                    }},
-                    windowResize: function(view) {{
-                        if (window.innerWidth < 768) {{
-                            calendar.changeView('listMonth');
-                        }} else {{
-                            calendar.changeView('dayGridMonth');
-                        }}
                     }}
                 }});
                 calendar.render();
