@@ -152,6 +152,28 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 6px 12px rgba(0,0,0,0.08);
     }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .main-title {
+            font-size: 1.6rem !important;
+        }
+        .sub-title {
+            font-size: 0.85rem !important;
+        }
+        .stat-value {
+            font-size: 1.3rem !important;
+        }
+        .stat-title {
+            font-size: 0.7rem !important;
+        }
+        .stat-card {
+            padding: 0.6rem !important;
+        }
+        .event-card {
+            padding: 0.8rem;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -367,6 +389,32 @@ with tab_calendar:
             .fc-event:hover {{
                 transform: scale(1.02);
             }}
+            /* Mobile: smaller fonts and tighter layout */
+            @media (max-width: 768px) {{
+                html, body {{
+                    font-size: 11px;
+                }}
+                .fc .fc-toolbar {{
+                    flex-wrap: wrap;
+                    gap: 4px;
+                }}
+                .fc .fc-toolbar-title {{
+                    font-size: 1.1em !important;
+                }}
+                .fc .fc-button {{
+                    padding: 0.2em 0.4em !important;
+                    font-size: 0.85em !important;
+                }}
+                .fc .fc-daygrid-event {{
+                    font-size: 0.75em;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }}
+                .fc .fc-list-event-title {{
+                    font-size: 0.9em;
+                }}
+            }}
         </style>
     </head>
     <body>
@@ -375,26 +423,26 @@ with tab_calendar:
             document.addEventListener('DOMContentLoaded', function() {{
                 var calendarEl = document.getElementById('calendar');
                 var eventsData = {events_json};
+                var isMobile = window.innerWidth < 768;
                 
                 var calendar = new FullCalendar.Calendar(calendarEl, {{
-                    initialView: 'dayGridMonth',
+                    initialView: isMobile ? 'listMonth' : 'dayGridMonth',
                     locale: 'ja',
                     headerToolbar: {{
                         left: 'prev,next today',
                         center: 'title',
-                        right: 'dayGridMonth,timeGridWeek,listMonth'
+                        right: 'dayGridMonth,listMonth'
                     }},
                     buttonText: {{
                         today: '今日',
                         month: '月',
-                        week: '週',
                         list: 'リスト'
                     }},
                     events: eventsData,
                     eventClick: function(info) {{
                         if (info.event.url) {{
                             window.open(info.event.url, '_blank');
-                            info.jsEvent.preventDefault(); // Don't let default iframe navigate
+                            info.jsEvent.preventDefault();
                         }}
                     }},
                     eventMouseEnter: function(info) {{
@@ -402,6 +450,13 @@ with tab_calendar:
                     }},
                     eventMouseLeave: function(info) {{
                         info.el.style.opacity = 1.0;
+                    }},
+                    windowResize: function(view) {{
+                        if (window.innerWidth < 768) {{
+                            calendar.changeView('listMonth');
+                        }} else {{
+                            calendar.changeView('dayGridMonth');
+                        }}
                     }}
                 }});
                 calendar.render();
