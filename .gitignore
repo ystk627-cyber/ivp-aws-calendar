@@ -10,4 +10,5 @@ ivp_page*.html
 *.gform
 *.gscript
 *.webp
-*.png
+
+survey_deploy/

@@ -239,23 +239,37 @@ st.sidebar.markdown("#### 🍊 IVPカレンダー")
 st.sidebar.subheader("🔒 IVP ログイン設定")
 st.sidebar.caption("IVP会員スケジュールを取得するために入力してください (5ヶ月分同期中)")
 
-input_id = st.sidebar.text_input("IVP ID (Partner No.)", value=st.session_state['ivp_id'], max_chars=6, help="数字6桁 of Partner ID")
-input_pw = st.sidebar.text_input("パスワード", value=st.session_state['ivp_pw'], type="password")
+with st.sidebar.form("ivp_login_form"):
+    input_id = st.text_input("IVP ID (Partner No.)", value=st.session_state['ivp_id'], max_chars=6, help="数字6桁 of Partner ID")
+    input_pw = st.text_input("パスワード", value=st.session_state['ivp_pw'], type="password")
+    login_submitted = st.form_submit_button("🔑 ログイン", use_container_width=True)
 
 # Success indicator if logged in
 if st.session_state['ivp_session']:
     st.sidebar.success("🟢 IVPログイン成功")
 
 # Login action
-if input_id != st.session_state['ivp_id'] or input_pw != st.session_state['ivp_pw']:
-    # Credentials changed, reset session
+if login_submitted:
     st.session_state['ivp_id'] = input_id
     st.session_state['ivp_pw'] = input_pw
     st.session_state['ivp_session'] = None
     st.session_state['ivp_login_error'] = None
     st.session_state['last_login_html'] = None
 
-if input_id and input_pw and st.session_state['ivp_session'] is None and not st.session_state['ivp_login_error']:
+    if not input_id or not input_pw:
+        st.session_state['ivp_login_error'] = "IDとパスワードを入力してください。"
+    else:
+        with st.sidebar.spinner("IVPログイン試行中..."):
+            session, error, debug_html = login_ivp(input_id, input_pw)
+            st.session_state['last_login_html'] = debug_html
+            if session:
+                st.session_state['ivp_session'] = session
+                st.cache_data.clear()
+                st.rerun()
+            else:
+                st.session_state['ivp_login_error'] = error
+
+elif input_id and input_pw and st.session_state['ivp_session'] is None and not st.session_state['ivp_login_error']:
     with st.sidebar.spinner("IVPログイン試行中..."):
         session, error, debug_html = login_ivp(input_id, input_pw)
         st.session_state['last_login_html'] = debug_html
