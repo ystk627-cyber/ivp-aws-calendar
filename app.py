@@ -6,6 +6,26 @@ import urllib.parse
 import requests
 from scraper import scrape_aws_seminars, login_ivp, scrape_ivp_schedule, extract_ivp_diagnostic_info
 
+st.set_page_config(
+    page_title="IVP・AWS 統合スケジュールカレンダー",
+    page_icon="📅",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# Streamlit ヘッダー・フッター・メニュー・デプロイ/Forkボタンの非表示
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden; display: none !important;}
+    header {visibility: hidden; display: none !important;}
+    footer {visibility: hidden; display: none !important;}
+    .stDeployButton {display: none !important;}
+    [data-testid="stToolbar"] {visibility: hidden; display: none !important;}
+    [data-testid="stDecoration"] {visibility: hidden; display: none !important;}
+    [data-testid="stStatusWidget"] {visibility: hidden; display: none !important;}
+    </style>
+""", unsafe_allow_html=True)
+
 # ==========================================
 # Event Splitting Utility
 # ==========================================
