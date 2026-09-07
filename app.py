@@ -13,16 +13,21 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Streamlit ヘッダー・フッター・メニュー・デプロイ/Forkボタンの非表示
+# Streamlit ヘッダー・フッター・メニュー・デプロイ/Forkボタンの非表示（サイドバー展開ボタンは保持）
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden; display: none !important;}
-    header {visibility: hidden; display: none !important;}
     footer {visibility: hidden; display: none !important;}
     .stDeployButton {display: none !important;}
     [data-testid="stToolbar"] {visibility: hidden; display: none !important;}
     [data-testid="stDecoration"] {visibility: hidden; display: none !important;}
     [data-testid="stStatusWidget"] {visibility: hidden; display: none !important;}
+    /* サイドバー開閉トグルボタンは常に表示 */
+    [data-testid="collapsedControl"] {
+        display: block !important;
+        visibility: visible !important;
+        z-index: 1000 !important;
+    }
     </style>
 """, unsafe_allow_html=True)
 
@@ -78,15 +83,6 @@ def split_multiday_events(events):
 # ==========================================
 
 
-# ==========================================
-# Page Configuration
-# ==========================================
-st.set_page_config(
-    page_title="IVP・AWS 統合イベントスケジュールカレンダー",
-    page_icon="📅",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
 # Custom premium styling
 st.markdown("""
@@ -391,6 +387,63 @@ with col3:
         <div class="stat-value">{ivp_count if st.session_state['ivp_session'] else '未接続'}</div>
     </div>
     """, unsafe_allow_html=True)
+
+
+# ==========================================
+# Main Screen IVP Login & Sync Control
+# ==========================================
+if not st.session_state['ivp_session']:
+    with st.expander("🔒 🍊 【IVPカレンダー連携】会員専用スケジュールを同期する（クリックで開閉）", expanded=True):
+        st.markdown("""
+        **IVP会員専用ページのスケジュールをカレンダーに統合します。**  
+        以下のフォームにPartner ID（数字6桁）とパスワードを入力して「連携・ログイン」を押してください。
+        """)
+        with st.form("main_ivp_login_form"):
+            m_col_id, m_col_pw, m_col_btn = st.columns([3, 3, 2])
+            with m_col_id:
+                m_input_id = st.text_input("IVP ID (Partner No.)", value=st.session_state['ivp_id'], max_chars=6, help="数字6桁")
+            with m_col_pw:
+                m_input_pw = st.text_input("パスワード", value=st.session_state['ivp_pw'], type="password")
+            with m_col_btn:
+                st.write("")
+                st.write("")
+                m_login_submitted = st.form_submit_button("🔑 連携・ログイン", use_container_width=True)
+
+        if m_login_submitted:
+            st.session_state['ivp_id'] = m_input_id
+            st.session_state['ivp_pw'] = m_input_pw
+            st.session_state['ivp_session'] = None
+            st.session_state['ivp_login_error'] = None
+            st.session_state['last_login_html'] = None
+
+            if not m_input_id or not m_input_pw:
+                st.session_state['ivp_login_error'] = "IDとパスワードを入力してください。"
+            else:
+                with st.spinner("IVPログイン試行中..."):
+                    session, error, debug_html = login_ivp(m_input_id, m_input_pw)
+                    st.session_state['last_login_html'] = debug_html
+                    if session:
+                        st.session_state['ivp_session'] = session
+                        st.cache_data.clear()
+                        st.rerun()
+                    else:
+                        st.session_state['ivp_login_error'] = error
+
+        if st.session_state['ivp_login_error']:
+            st.error(st.session_state['ivp_login_error'])
+else:
+    c_status, c_logout = st.columns([5, 1])
+    with c_status:
+        st.success(f"🟢 **IVPカレンダー連携中**: 会員専用スケジュール（5ヶ月分）が統合されています。(Partner ID: {st.session_state['ivp_id']})")
+    with c_logout:
+        if st.button("🚪 ログオフ", key="main_logout_btn", use_container_width=True):
+            st.session_state['ivp_id'] = ""
+            st.session_state['ivp_pw'] = ""
+            st.session_state['ivp_session'] = None
+            st.session_state['ivp_login_error'] = None
+            st.session_state['last_login_html'] = None
+            st.cache_data.clear()
+            st.rerun()
 
 
 # ==========================================
