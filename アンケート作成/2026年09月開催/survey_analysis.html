@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<title>IVP NAGOYA 9月定例会 アフターアンケート分析レポート</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-card: rgba(17, 24, 45, 0.85);
+  --bg-card-hover: rgba(24, 34, 60, 0.95);
+  --border-card: rgba(99, 132, 255, 0.15);
+  --accent-blue: #6366f1;
+  --accent-cyan: #22d3ee;
+  --accent-violet: #a78bfa;
+  --accent-rose: #fb7185;
+  --accent-amber: #fbbf24;
+  --accent-emerald: #34d399;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 30%, #a855f7 60%, #ec4899 100%);
+  --gradient-card: linear-gradient(145deg, rgba(99,102,241,0.08), rgba(139,92,246,0.04));
+  --shadow-glow: 0 0 60px rgba(99,102,241,0.15), 0 0 120px rgba(139,92,246,0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans JP', 'Inter', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: radial-gradient(ellipse at 20% 20%, rgba(99,102,241,0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 80%, rgba(139,92,246,0.06) 0%, transparent 50%),
+              radial-gradient(ellipse at 50% 50%, rgba(236,72,153,0.04) 0%, transparent 60%);
+  z-index: 0;
+  animation: bgPulse 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes bgPulse {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(3deg) scale(1.02); }
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* Hero */
+.hero {
+  text-align: center;
+  padding: 60px 0 40px;
+  position: relative;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(99,102,241,0.12);
+  border: 1px solid rgba(99,102,241,0.25);
+  border-radius: 100px;
+  padding: 6px 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-violet);
+  letter-spacing: 0.05em;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+}
+.hero-badge::before { content: '📊'; }
+.hero h1 {
+  font-size: clamp(1.6rem, 4.5vw, 3.2rem);
+  font-weight: 900;
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.3;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+.hero-sub {
+  font-size: clamp(0.82rem, 2.5vw, 1.05rem);
+  color: var(--text-secondary);
+  font-weight: 300;
+  line-height: 1.6;
+}
+.hero-sub strong { color: var(--accent-cyan); font-weight: 600; }
+
+/* KPI Row */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 40px;
+}
+.kpi-card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 22px 14px;
+  text-align: center;
+  backdrop-filter: blur(20px);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--gradient-hero);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.kpi-card:hover { transform: translateY(-4px); border-color: rgba(99,132,255,0.3); }
+.kpi-card:hover::after { opacity: 1; }
+.kpi-icon { font-size: 1.8rem; margin-bottom: 6px; }
+.kpi-value {
+  font-size: clamp(1.8rem, 4vw, 2.4rem);
+  font-weight: 800;
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-violet));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.kpi-label {
+  font-size: clamp(0.75rem, 2vw, 0.85rem);
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-weight: 400;
+}
+
+/* Section */
+.section {
+  margin-bottom: 44px;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.section-number {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-violet));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  font-family: 'Inter';
+  flex-shrink: 0;
+}
+.section-title {
+  font-size: clamp(1.05rem, 3vw, 1.3rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Card */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 20px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-glow);
+  transition: all 0.3s;
+}
+.card:hover { border-color: rgba(99,132,255,0.25); }
+
+/* Grid layouts */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* Chart container */
+.chart-wrap {
+  position: relative;
+  width: 100%;
+  min-height: 280px;
+  max-height: 380px;
+}
+.chart-wrap canvas { width: 100% !important; }
+
+/* Word cloud */
+.word-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 16px 0;
+}
+.word-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-weight: 500;
+  transition: all 0.25s;
+  cursor: default;
+  border: 1px solid transparent;
+}
+.word-tag:hover { transform: scale(1.05); }
+.word-tag.size-1 { font-size: 0.78rem; background: rgba(99,102,241,0.08); color: var(--text-secondary); border-color: rgba(99,102,241,0.15); }
+.word-tag.size-2 { font-size: 0.9rem; background: rgba(99,102,241,0.12); color: var(--accent-violet); border-color: rgba(99,102,241,0.2); }
+.word-tag.size-3 { font-size: 1.05rem; background: rgba(99,102,241,0.18); color: var(--accent-cyan); border-color: rgba(34,211,238,0.25); }
+.word-tag.size-4 { font-size: 1.22rem; background: rgba(99,102,241,0.25); color: #fff; border-color: rgba(99,102,241,0.35); font-weight: 700; }
+.word-tag .count {
+  margin-left: 6px;
+  font-size: 0.72em;
+  opacity: 0.7;
+  font-family: 'Inter';
+}
+
+/* Quote cards */
+.quote-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+.quote-card {
+  background: linear-gradient(145deg, rgba(99,102,241,0.06), rgba(139,92,246,0.03));
+  border: 1px solid rgba(99,102,241,0.12);
+  border-radius: 14px;
+  padding: 20px 18px 18px;
+  position: relative;
+  transition: all 0.3s;
+}
+.quote-card:hover { border-color: rgba(99,102,241,0.3); transform: translateY(-2px); }
+.quote-card::before {
+  content: '“';
+  position: absolute;
+  top: 6px; left: 14px;
+  font-size: 2.4rem;
+  color: rgba(99,102,241,0.2);
+  font-family: serif;
+  line-height: 1;
+}
+.quote-text {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+  padding-top: 10px;
+}
+.quote-author {
+  font-size: 0.78rem;
+  color: var(--accent-cyan);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.quote-author::before {
+  content: '';
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+}
+
+/* Insights list */
+.insight-list { display: flex; flex-direction: column; gap: 12px; }
+.insight-card {
+  background: rgba(255,255,255,0.03);
+  border-left: 4px solid var(--accent-blue);
+  border-radius: 0 12px 12px 0;
+  padding: 16px 20px;
+  transition: all 0.25s;
+}
+.insight-card:hover { background: rgba(255,255,255,0.05); }
+.insight-card.cyan { border-left-color: var(--accent-cyan); }
+.insight-card.violet { border-left-color: var(--accent-violet); }
+.insight-card.emerald { border-left-color: var(--accent-emerald); }
+.insight-card.amber { border-left-color: var(--accent-amber); }
+.insight-card.rose { border-left-color: var(--accent-rose); }
+.insight-card h4 {
+  font-size: 0.92rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.insight-card p {
+  font-size: 0.84rem;
+  line-height: 1.65;
+  color: var(--text-secondary);
+}
+
+/* Action Timeline */
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 14px;
+}
+.action-card {
+  background: rgba(17, 24, 45, 0.7);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 14px;
+  padding: 16px 18px;
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.action-card:hover {
+  border-color: rgba(52, 211, 153, 0.4);
+  transform: translateY(-2px);
+}
+.action-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(52, 211, 153, 0.12);
+  color: var(--accent-emerald);
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  align-self: flex-start;
+  margin-bottom: 10px;
+}
+.action-body {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.action-owner {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  text-align: right;
+  font-weight: 500;
+}
+
+/* Table Responsive */
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border-card);
+}
+table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  text-align: left;
+  min-width: 600px;
+}
+table.data-table th, table.data-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+table.data-table th {
+  background: rgba(99,102,241,0.12);
+  color: var(--accent-violet);
+  font-weight: 600;
+  white-space: nowrap;
+}
+table.data-table tr:hover { background: rgba(255,255,255,0.02); }
+
+/* Update badge */
+.update-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(34,211,153,0.12);
+  border: 1px solid rgba(34,211,153,0.3);
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 0.68rem;
+  color: var(--accent-emerald);
+  font-weight: 600;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(25px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate { animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; opacity: 0; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+.delay-4 { animation-delay: 0.4s; }
+
+/* ======== MOBILE RESPONSIVE OPTIMIZATIONS ======== */
+@media (max-width: 1024px) {
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  .container { padding: 0 14px 60px; }
+  .hero { padding: 40px 0 28px; }
+  .card { padding: 18px 14px; border-radius: 16px; }
+  .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .kpi-card { padding: 16px 8px; border-radius: 12px; }
+  .kpi-icon { font-size: 1.4rem; }
+  .quote-grid { grid-template-columns: 1fr; }
+  .action-grid { grid-template-columns: 1fr; }
+  .chart-wrap { min-height: 240px; max-height: 300px; }
+  .hero-badge { padding: 5px 14px; font-size: 0.72rem; }
+  .section-header { gap: 10px; }
+  .section-number { width: 30px; height: 30px; font-size: 0.75rem; }
+  .insight-card { padding: 14px 16px; }
+  .insight-card h4 { font-size: 0.85rem; }
+  .insight-card p { font-size: 0.8rem; }
+}
+
+@media (max-width: 480px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .kpi-card { padding: 14px 6px; }
+  .kpi-value { font-size: 1.6rem; }
+  .hero h1 { font-size: 1.5rem; line-height: 1.35; }
+  .word-tag { padding: 5px 12px; }
+  .word-tag.size-4 { font-size: 1.05rem; }
+  .word-tag.size-3 { font-size: 0.92rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- Password Gate -->
+<div id="passwordGate" style="position:fixed; inset:0; width:100%; min-height:100vh; min-height:100dvh; background:#0a0e1a; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; font-family:'Noto Sans JP', sans-serif; padding:24px 20px; overflow-y:auto; -webkit-overflow-scrolling:touch; touch-action:manipulation;">
+  <div style="text-align:center; max-width:380px;">
+    <div style="font-size:2.5rem; margin-bottom:12px;">🔒</div>
+    <h2 style="color:#fff; font-weight:700; font-size:clamp(1.15rem,4vw,1.45rem); margin-bottom:8px;">パスワードを入力してください</h2>
+    <p style="color:var(--text-secondary); font-size:0.85rem; line-height:1.5;">IVP NAGOYA 定例会アンケート分析レポート</p>
+  </div>
+  <form id="pwForm" onsubmit="event.preventDefault(); checkPassword();" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; width:100%; max-width:380px;">
+    <input type="password" id="pwInput" placeholder="Password" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1; min-width:160px; padding:14px 18px; border-radius:10px; border:1px solid rgba(99, 132, 255, 0.3); background:#11182d; color:#fff; font-size:16px; text-align:center; outline:none; font-family:'Inter', sans-serif; -webkit-appearance:none; appearance:none;">
+    <button type="submit" style="padding:14px 28px; border-radius:10px; border:none; background:linear-gradient(135deg, #6366f1, #8b5cf6); color:#fff; font-weight:bold; cursor:pointer; font-size:0.95rem; transition:opacity 0.2s; white-space:nowrap; -webkit-tap-highlight-color:transparent;">送信</button>
+  </form>
+  <p id="pwError" style="color:#fb7185; font-size:0.88rem; display:none; font-weight:600;">パスワードが違います</p>
+</div>
+
+<script>
+function checkPassword() {
+  const pw = document.getElementById('pwInput').value;
+  if (pw === 'ivpnagoya') {
+    document.getElementById('passwordGate').style.display = 'none';
+    document.getElementById('pwInput').blur();
+    initCharts();
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    document.getElementById('pwInput').focus();
+  }
+}
+</script>
+
+<div class="container">
+
+  <!-- Hero -->
+  <header class="hero animate">
+    <div class="hero-badge">ANALYTICS REPORT</div>
+    <h1>IVP TEAM NAGOYA<br>9月定例会 アフターアンケート分析</h1>
+    <p class="hero-sub">2026年9月16日開催 ｜ 回答期間 9/16 20:57 〜 9/18 8:22 ｜ <strong>12名</strong>回答 <span class="update-badge">✨ 9月速報版</span></p>
+  </header>
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi-card animate delay-1">
+      <div class="kpi-icon">👥</div>
+      <div class="kpi-value">12</div>
+      <div class="kpi-label">総回答者数</div>
+    </div>
+    <div class="kpi-card animate delay-2">
+      <div class="kpi-icon">🎯</div>
+      <div class="kpi-value">100%</div>
+      <div class="kpi-label">行動宣言具体化率</div>
+    </div>
+    <div class="kpi-card animate delay-3">
+      <div class="kpi-icon">🔥</div>
+      <div class="kpi-value">3.0</div>
+      <div class="kpi-label">平均希望テーマ数/人</div>
+    </div>
+    <div class="kpi-card animate delay-4">
+      <div class="kpi-icon">🏆</div>
+      <div class="kpi-value">67%</div>
+      <div class="kpi-label">業者開拓への関心度</div>
+    </div>
+  </div>
+
+  <!-- Section 1: 希望テーマ集計 -->
+  <section class="section animate delay-1">
+    <div class="section-header">
+      <div class="section-number">1</div>
+      <h2 class="section-title">今後のチームMTGで取り上げてほしいテーマ（複数選択可）</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:16px; color:var(--accent-cyan);">📊 希望テーマ得票ランキング（全36票）</h3>
+        <div class="chart-wrap">
+          <canvas id="themeChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:16px; color:var(--accent-violet);">💡 テーマ集計からのインサイトと示唆</h3>
+        <div class="insight-list">
+          <div class="insight-card violet">
+            <h4>🥇 不動産業者の開拓・関係構築（8票 / 66.7%）</h4>
+            <p>12名中8名が選択し単独トップ。高梨オーナーのシェアでも語られた「在り方による信頼獲得・業者パートナー化」への関心が極めて高く、実践的なアプローチ手法が求められています。</p>
+          </div>
+          <div class="insight-card cyan">
+            <h4>🥈 金融機関開拓 & 出口戦略（各7票 / 58.3%）</h4>
+            <p>融資面談対策に加え、出口戦略（売却・ヤドカリ・長期運用）への投票が同数で急上昇。1〜2棟目の購入視野から「事業としての出口」を見据える意識の進化が見られます。</p>
+          </div>
+          <div class="insight-card emerald">
+            <h4>🥉 物件調査 & 事業計画（各5票 / 41.7%）</h4>
+            <p>日々の物件検索・調査を数値化して習慣化したいというメンバーが多く、精度の高い事業収支計画の作り方が実務課題となっています。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 2: 達成者シェアからの学び -->
+  <section class="section animate delay-2">
+    <div class="section-header">
+      <div class="section-number">2</div>
+      <h2 class="section-title">達成者シェアから得た強烈な気づきと学び</h2>
+    </div>
+
+    <!-- 後藤オーナー -->
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+        <h3 style="font-size:1rem; font-weight:700; color:var(--accent-amber);">🌟 後藤晃オーナーのシェアへの反響</h3>
+        <span style="font-size:0.75rem; color:var(--text-muted); background:rgba(251,191,36,0.1); padding:4px 10px; border-radius:20px; border:1px solid rgba(251,191,36,0.2);">できない理由を潰す行動力</span>
+      </div>
+      <div class="word-cloud" style="border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:16px; padding-bottom:14px;">
+        <span class="word-tag size-4">部署異動で年収UP<span class="count">6</span></span>
+        <span class="word-tag size-4">自己資金づくり<span class="count">5</span></span>
+        <span class="word-tag size-3">実務者検定との両立<span class="count">4</span></span>
+        <span class="word-tag size-3">ビジョンボードの威力<span class="count">3</span></span>
+        <span class="word-tag size-2">できない理由ではなく根拠を作る<span class="count">3</span></span>
+        <span class="word-tag size-2">金融機関を1つに絞る<span class="count">2</span></span>
+        <span class="word-tag size-1">資産状況の開示に感謝<span class="count">2</span></span>
+      </div>
+      <div class="quote-grid">
+        <div class="quote-card">
+          <p class="quote-text">忙しい部署へ移動して年収をあげつつ不動産の資格を取得など、本当に熱意が素晴らしいと感動しました！</p>
+          <span class="quote-author">花澤桂子 さん</span>
+        </div>
+        <div class="quote-card">
+          <p class="quote-text">できない理由ではなく、できるための根拠をつくってこられたこと大変感動しました！私も実務者検定勉強します！</p>
+          <span class="quote-author">中筋早帆 さん</span>
+        </div>
+        <div class="quote-card">
+          <p class="quote-text">個人的な資産状況まで開示してくださり感謝。計画的戦略的にできることは何でもする❢という氣合を感じました。</p>
+          <span class="quote-author">樋口桂子 さん</span>
+        </div>
+        <div class="quote-card">
+          <p class="quote-text">自己資金を貯めるための行動や銀行さんを一つに絞り動かれた行動、私にはない発想でしたのですごく勉強になりました。</p>
+          <span class="quote-author">山本真美子 さん</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 高梨オーナー -->
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+        <h3 style="font-size:1rem; font-weight:700; color:var(--accent-rose);">🌟 高梨としろーオーナーのシェアへの反響</h3>
+        <span style="font-size:0.75rem; color:var(--text-muted); background:rgba(251,113,133,0.1); padding:4px 10px; border-radius:20px; border:1px solid rgba(251,113,133,0.2);">在り方がブランドをつくる</span>
+      </div>
+      <div class="word-cloud" style="border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:16px; padding-bottom:14px;">
+        <span class="word-tag size-4">在り方が貢献になる<span class="count">6</span></span>
+        <span class="word-tag size-4">熱意は無限にできる<span class="count">5</span></span>
+        <span class="word-tag size-3">仲介・銀行との信頼関係<span class="count">4</span></span>
+        <span class="word-tag size-3">IVP生の看板<span class="count">4</span></span>
+        <span class="word-tag size-2">考え方×熱意×能力<span class="count">3</span></span>
+        <span class="word-tag size-2">日頃の迅速な対応の蓄積<span class="count">2</span></span>
+        <span class="word-tag size-1">どんな時も顔出し・貢献精神<span class="count">2</span></span>
+      </div>
+      <div class="quote-grid">
+        <div class="quote-card">
+          <p class="quote-text">自分の在り方が貢献になる！不動産業者の方、銀行の方と接する時の自分の在り方を今一度振り返るいい機会になりました。</p>
+          <span class="quote-author">花澤桂子 さん</span>
+        </div>
+        <div class="quote-card">
+          <p class="quote-text">考え方×熱意×能力。熱意だけは誰でも出せる、無限に出せるというお言葉がすごく沁みました！</p>
+          <span class="quote-author">山本真美子 さん</span>
+        </div>
+        <div class="quote-card">
+          <p class="quote-text">IVP生でいる価値❢高梨オーナーの1棟目購入の在り方が仲介会社さんのハートを掴み、2棟目の強力なパートナーになった。</p>
+          <span class="quote-author">樋口桂子 さん</span>
+        </div>
+        <div class="quote-card">
+          <p class="quote-text">IVP生のあり方がブランドを作る（次のどこかのIVP生のためになる）。自分の行動が仲間のアシストにもブレーキにもなる。</p>
+          <span class="quote-author">佐原儀昭 さん / 後藤晃 さん</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: シェア会 & 第21回IVPの学び -->
+  <section class="section animate delay-3">
+    <div class="section-header">
+      <div class="section-number">3</div>
+      <h2 class="section-title">IVPシェア会 & 第21回IVPで刺さった原理原則</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:14px; color:var(--accent-cyan);">🧠 心を動かされた「言葉・マインドセット」</h3>
+        <div class="insight-list">
+          <div class="insight-card rose">
+            <h4>「ないことを探さない。ないからこそやる！」</h4>
+            <p>「時間がない・資金がない」を言い訳にせず、無いからこそ今できる全てをスピーディーにやり抜く決意（花澤さん、伊予田さん、中筋さん、後藤さん）。</p>
+          </div>
+          <div class="insight-card amber">
+            <h4>「考え方が最重要（熱意×能力でも考え方がマイナスなら大赤字）」</h4>
+            <p>能力や熱意が高くても、自分本位（Sクワ）の考え方では破綻する。Iクワドラントの考え方に人生を変える覚悟（佐原さん、後藤さん、山本さん）。</p>
+          </div>
+          <div class="insight-card cyan">
+            <h4>「言い訳は嘘のかたまり」</h4>
+            <p>宮下オーナーが引用された髙橋代表の言葉が深く刺さり、自らの行動を客観視するきっかけに（板井さん）。</p>
+          </div>
+          <div class="insight-card emerald">
+            <h4>「名古屋会は愛VP。Giverの集まり」</h4>
+            <p>名古屋チーム全員をオーナーへ押し上げるという貢献精神の連鎖（樋口さん、山内さん）。</p>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:14px; color:var(--accent-violet);">🏢 第21回IVPの強烈なインストール内容</h3>
+        <div class="insight-list">
+          <div class="insight-card violet">
+            <h4>BI思考・Iクワドラントの徹底</h4>
+            <p>何事もBI思考で考える。二度やることは仕組み化！Sクワドラントの自己流が混ざっていた痛烈な気づきから、正しく学び直す姿勢へ（高梨さん、原田さん、花澤さん）。</p>
+          </div>
+          <div class="insight-card blue">
+            <h4>表彰式は最高のセミナー</h4>
+            <p>仲間の達成の瞬間に触れること自体が最大の学びと熱量チャージになる（佐原さん）。</p>
+          </div>
+          <div class="insight-card emerald">
+            <h4>時間管理のルーティン化・仕組み化</h4>
+            <p>食事や行動をルーティン化して時間管理を極める代表の姿勢から、熱量は仕組みで維持することを学ぶ（中筋さん、原田さん）。</p>
+          </div>
+          <div class="insight-card amber">
+            <h4>不動産もドルコスト平均法</h4>
+            <p>一度きりの勝負ではなく、資産形成の波に乗り淡々と買い進める投資観（山内さん）。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: 動機と叶えたい夢 -->
+  <section class="section animate delay-3">
+    <div class="section-header">
+      <div class="section-number">4</div>
+      <h2 class="section-title">不動産をやる理由 ＆ 叶えたい夢の構造</h2>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:14px; color:var(--accent-cyan);">❤️ 「不動産をやる理由」の分類（12名）</h3>
+        <div class="chart-wrap" style="max-height:260px;">
+          <canvas id="whyChart"></canvas>
+        </div>
+        <div style="margin-top:14px; font-size:0.82rem; color:var(--text-secondary); line-height:1.6;">
+          <strong style="color:#fff;">圧倒的に多い動機は「家族」と「自由な選択肢」：</strong><br>
+          「家族の笑顔を増やす」「子どものやりたい事を120%応援」「親孝行」「愛する夫と一緒に天命を全うする」といった、身近な人への深い愛が原動力になっています。
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:0.95rem; font-weight:700; margin-bottom:14px; color:var(--accent-emerald);">🌈 不動産を手にして叶えたい夢（ビジョン）</h3>
+        <div class="insight-list">
+          <div class="insight-card cyan">
+            <h4>✈️ 海外旅行・世界一周・極上の体験</h4>
+            <p>「世界一周旅行」「家族でビジネスクラスでサントリーニ島」「親との船旅海外旅行」「娘の留学先へ行く」（伊予田さん、佐原さん、中筋さん、山本さん）。</p>
+          </div>
+          <div class="insight-card emerald">
+            <h4>🏡 多拠点生活・自然の中での暮らし</h4>
+            <p>「海の見えるゲストハウス」「キャンピングカーで自然の中で仕事」「田舎と都会の2拠点生活」「ハワイに別荘、マレーシア移住」（伊予田さん、山本さん、原田さん）。</p>
+          </div>
+          <div class="insight-card violet">
+            <h4>🤝 寺子屋・居場所づくり・地域貢献</h4>
+            <p>「寺子屋のような居場所づくり」「大切な仲間と地域貢献の集い場」「女性が幸せに自己実現できるOasisPlace」（伊予田さん、宮下さん、樋口さん）。</p>
+          </div>
+          <div class="insight-card amber">
+            <h4>🚀 FIRE 2.0・天命に生きる</h4>
+            <p>「現職からの卒業」「自由な選択をとり続ける未来」「お金と時間に縛られない働き方」（後藤さん、板井さん、山内さん、花澤さん）。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: 行動宣言 -->
+  <section class="section animate delay-4">
+    <div class="section-header">
+      <div class="section-number">5</div>
+      <h2 class="section-title">次回IVPまでに実践する行動宣言（100%具体化）</h2>
+    </div>
+    <div class="action-grid">
+      <div class="action-card">
+        <div>
+          <span class="action-badge">決済・引渡し</span>
+          <p class="action-body">３棟目購入。決済引渡し完了！</p>
+        </div>
+        <span class="action-owner">高梨登士郎 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">新規銀行 & 記録</span>
+          <p class="action-body">新規銀行開拓2行、物件検索、買う買わないの理由を記録、やる理由をありありと思い浮かべて活動。</p>
+        </div>
+        <span class="action-owner">伊予田美穂 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">習慣化 & システム</span>
+          <p class="action-body">自己資金を貯める習慣化とシステム作り！</p>
+        </div>
+        <span class="action-owner">花澤桂子 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">10行開拓 & 毎日5件</span>
+          <p class="action-body">銀行開拓10行！物件検索毎日5件！IVP動画視聴、毎週銀行・不動産開拓。</p>
+        </div>
+        <span class="action-owner">山本真美子 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">プロファイル & 安定稼働</span>
+          <p class="action-body">1.プロフィールの見直し　2.1棟目不動産の安定稼働　3.銀行開拓</p>
+        </div>
+        <span class="action-owner">宮下善美 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">満室経営・家賃UP</span>
+          <p class="action-body">全部屋家賃5,000円アップ</p>
+        </div>
+        <span class="action-owner">佐原儀昭 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">決断と行動</span>
+          <p class="action-body">3棟目を目指すのか、転職活動をするのか決めて行動する。</p>
+        </div>
+        <span class="action-owner">後藤晃 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">毎日検索 & ヒアリング</span>
+          <p class="action-body">毎日買うための行動(物件検索と調査)を継続。毎週ヒアリング3件以上。月1行新規開拓。</p>
+        </div>
+        <span class="action-owner">樋口桂子 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">ヒアリング習慣化</span>
+          <p class="action-body">物件検索、ヒアリングの習慣化</p>
+        </div>
+        <span class="action-owner">中筋早帆 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">銀行 & 検索</span>
+          <p class="action-body">銀行開拓、物件検索</p>
+        </div>
+        <span class="action-owner">板井美江 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">6棟目引渡し & 目的シェア</span>
+          <p class="action-body">ヤドカリの方法を知る・収益不動産を買い進め6棟目契約引渡し完了！1分での目的シェア継続。</p>
+        </div>
+        <span class="action-owner">山内香里 さん</span>
+      </div>
+      <div class="action-card">
+        <div>
+          <span class="action-badge">戦略設計 & ライフコンパス</span>
+          <p class="action-body">アドバイザー制度を利用し購入・売却戦略を立てる。夫婦でライフコンパスを作成。</p>
+        </div>
+        <span class="action-owner">原田朱里 さん</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: 次回定例会への提言 -->
+  <section class="section animate delay-4">
+    <div class="section-header">
+      <div class="section-number">6</div>
+      <h2 class="section-title">次回（10月・11月）定例会への提言・アジェンダ提案</h2>
+    </div>
+    <div class="card">
+      <div class="insight-list">
+        <div class="insight-card violet">
+          <h4>💡 提案1: 「不動産業者 開拓・関係構築」のロールプレイ＆実践共有（最優先テーマ）</h4>
+          <p>希望投票トップ（8名）。高梨オーナーが実践した「仲介会社が味方になってくれる在り方・コミュニケーション法」を深掘りし、電話ヒアリングや面談のリアルなトーク例をチーム内でシェアする企画が効果的です。</p>
+        </div>
+        <div class="insight-card cyan">
+          <h4>💡 提案2: 「金融機関開拓・融資面談」×「出口戦略」の2大セッション</h4>
+          <p>金融機関開拓（7名）と出口戦略（7名）への関心が非常に高い。後藤オーナーのように「金融機関をどう絞り、どう自己資金・根拠を提示したか」の具体事例と、購入時から意識すべき出口の考え方をセットで学ぶ勉強会を推奨します。</p>
+        </div>
+        <div class="insight-card emerald">
+          <h4>💡 提案3: 「1分間 目的・行動宣言シェア」の定例化</h4>
+          <p>山内オーナーからの提案にもあった通り、冒頭で「誰のため、何のためにやるのか」を各自1分でシェアすることで、BI思考と熱量の周波数を一気に高める仕組みを取り入れると定着度が増します。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 7: 回答データ全件一覧 -->
+  <section class="section animate delay-4">
+    <div class="section-header">
+      <div class="section-number">7</div>
+      <h2 class="section-title">アンケート回答データ一覧（全12名）</h2>
+    </div>
+    <div class="card">
+      <p style="font-size:0.84rem; color:var(--text-secondary); margin-bottom:12px;">※ 横スクロールで全項目を閲覧できます</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>タイムスタンプ</th>
+              <th>お名前</th>
+              <th>不動産をやる理由</th>
+              <th>叶えたい夢</th>
+              <th>次回までの行動宣言</th>
+              <th>希望テーマ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>9/16 20:57</td>
+              <td><strong>高梨登士郎</strong></td>
+              <td>妻と子供たちの支援を120%するために…</td>
+              <td>妻と子供を徹底サポート！</td>
+              <td>３棟目購入。決済引渡し完了！</td>
+              <td>出口戦略, 事業計画</td>
+            </tr>
+            <tr>
+              <td>9/16 21:06</td>
+              <td><strong>伊予田 美穂</strong></td>
+              <td>家族笑顔を増やすため、自由な時間と…</td>
+              <td>世界一周旅行、レシピを食育に導入、キャンピングカー…</td>
+              <td>新規銀行開拓2行、物件検索、理由を記録…</td>
+              <td>出口戦略, 業者開拓</td>
+            </tr>
+            <tr>
+              <td>9/16 21:15</td>
+              <td><strong>花澤桂子</strong></td>
+              <td>家族の幸せをもっと拡大させるため</td>
+              <td>自由な時間とお金がありまくりだと常に幸せを感じる</td>
+              <td>自己資金を貯める習慣化とシステム作り！</td>
+              <td>業者開拓</td>
+            </tr>
+            <tr>
+              <td>9/16 21:23</td>
+              <td><strong>山本真美子</strong></td>
+              <td>お金の不安なく家族と幸せな思い出を作るため…</td>
+              <td>海の見える家、ベンツ、ハワイ別荘、二拠点生活、マレーシア移住…</td>
+              <td>銀行開拓10行！物件検索毎日5件！IVP動画視聴…</td>
+              <td>物件検索, 金融機関, 交渉術, 出口, 業者, 事業計画</td>
+            </tr>
+            <tr>
+              <td>9/16 21:26</td>
+              <td><strong>宮下善美</strong></td>
+              <td>大切な仲間と私自身のために</td>
+              <td>大切な仲間と地域貢献のためのつどい場を創る</td>
+              <td>1.プロフィール見直し 2.1棟目安定 3.銀行開拓</td>
+              <td>物件検索, 金融機関, 交渉術, 出口, 業者, 事業計画</td>
+            </tr>
+            <tr>
+              <td>9/16 21:52</td>
+              <td><strong>佐原儀昭</strong></td>
+              <td>家族の幸せ</td>
+              <td>家族でビジネスクラスでサントリーニ島旅行</td>
+              <td>全部屋家賃5000円アップ</td>
+              <td>金融機関, 出口, 業者開拓</td>
+            </tr>
+            <tr>
+              <td>9/16 22:02</td>
+              <td><strong>後藤晃</strong></td>
+              <td>現職からの卒業と、人生の選択肢の自由度を上げる</td>
+              <td>FIRE2.0</td>
+              <td>3棟目を目指すか転職活動か決めて行動する</td>
+              <td>物件検索, 金融機関, 業者開拓</td>
+            </tr>
+            <tr>
+              <td>9/16 22:39</td>
+              <td><strong>樋口桂子</strong></td>
+              <td>愛する夫と一緒に人生を楽しむため。天命を全うする…</td>
+              <td>年2回以上夫と旅行。OasisPlaceをつくる…</td>
+              <td>毎日物件検索・調査。毎週ヒアリング3件。月1行開拓</td>
+              <td>金融機関, 出口, 事業計画</td>
+            </tr>
+            <tr>
+              <td>9/16 23:03</td>
+              <td><strong>中筋 早帆</strong></td>
+              <td>経済と時間との自由を手に入れ天命と貢献に生きる…</td>
+              <td>親との船旅海外旅行、夫と年1海外、娘の留学先へ行く</td>
+              <td>物件検索、ヒアリングの習慣化</td>
+              <td>物件検索, 金融機関, 交渉術, 業者, 事業計画</td>
+            </tr>
+            <tr>
+              <td>9/16 23:17</td>
+              <td><strong>板井美江</strong></td>
+              <td>お金と時間に縛られない自由な働き方をする為</td>
+              <td>老後の安心、夢の実現、家族の夢の応援</td>
+              <td>銀行開拓、物件検索</td>
+              <td>事業計画</td>
+            </tr>
+            <tr>
+              <td>9/17 17:45</td>
+              <td><strong>山内香里</strong></td>
+              <td>自由な選択をとり続けるため！</td>
+              <td>やりたいことを選択し続けている未来</td>
+              <td>ヤドカリの方法を知る・6棟目の契約引渡し完了！</td>
+              <td>1分目的シェア継続</td>
+            </tr>
+            <tr>
+              <td>9/18 08:22</td>
+              <td><strong>原田朱里</strong></td>
+              <td>自分自身、家族の自由な時間を増やすため</td>
+              <td>週3勤務、天命見つけ貢献、田舎と都会の2拠点生活…</td>
+              <td>アドバイザー制度利用し戦略設計、ライフコンパス作成</td>
+              <td>物件検索, 交渉術, 出口, 業者開拓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+let chartsInitialized = false;
+
+function initCharts() {
+  if (chartsInitialized) return;
+  chartsInitialized = true;
+
+  // Chart 1: 希望テーマ (水平棒グラフ)
+  const ctxTheme = document.getElementById('themeChart').getContext('2d');
+  new Chart(ctxTheme, {
+    type: 'bar',
+    data: {
+      labels: [
+        '不動産業者の開拓・関係構築',
+        '金融機関の開拓・融資面談対策',
+        '出口戦略',
+        '物件検索・物件調査のポイント',
+        '事業計画の作成と運用',
+        '物件の交渉術（指値の通し方）',
+        '目的シェア継続（その他）'
+      ],
+      datasets: [{
+        label: '得票数 (名)',
+        data: [8, 7, 7, 5, 5, 3, 1],
+        backgroundColor: [
+          'rgba(167, 139, 250, 0.85)',
+          'rgba(34, 211, 238, 0.85)',
+          'rgba(99, 102, 241, 0.85)',
+          'rgba(52, 211, 153, 0.85)',
+          'rgba(251, 191, 36, 0.85)',
+          'rgba(251, 113, 133, 0.85)',
+          'rgba(148, 163, 184, 0.6)'
+        ],
+        borderRadius: 8,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const val = context.raw;
+              const pct = ((val / 12) * 100).toFixed(1);
+              return ` ${val}名 (${pct}%)`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 10,
+          ticks: { color: '#94a3b8', font: { family: 'Inter', size: 11 } },
+          grid: { color: 'rgba(255,255,255,0.06)' }
+        },
+        y: {
+          ticks: {
+            color: '#f1f5f9',
+            font: { family: 'Noto Sans JP', size: 11 },
+            autoSkip: false
+          },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+
+  // Chart 2: 不動産をやる理由 (ドーナツ)
+  const ctxWhy = document.getElementById('whyChart').getContext('2d');
+  new Chart(ctxWhy, {
+    type: 'doughnut',
+    data: {
+      labels: ['家族の笑顔・応援・親孝行', '時間と経済の自由・天命', '仲間・地域貢献', '老後の安心・資産形成'],
+      datasets: [{
+        data: [7, 5, 2, 2],
+        backgroundColor: [
+          'rgba(34, 211, 238, 0.85)',
+          'rgba(167, 139, 250, 0.85)',
+          'rgba(52, 211, 153, 0.85)',
+          'rgba(251, 191, 36, 0.85)'
+        ],
+        borderColor: '#0a0e1a',
+        borderWidth: 3
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#94a3b8',
+            font: { family: 'Noto Sans JP', size: 11 },
+            padding: 14,
+            boxWidth: 12
+          }
+        }
+      },
+      cutout: '62%'
+    }
+  });
+}
+</script>
+
+</body>
+</html>
