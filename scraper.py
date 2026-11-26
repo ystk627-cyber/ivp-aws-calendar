@@ -7,6 +7,7 @@ import streamlit as st
 
 AWS_BASE_URL = "https://www.awareness.co.jp"
 AWS_LIST_URL = f"{AWS_BASE_URL}/seminar2/seminarlist"
+AWS_CALENDAR_URL = f"{AWS_BASE_URL}/seminar2/calendar"
 
 IVP_BASE_URL = "https://valuable-style.co.jp"
 IVP_LOGIN_URL = f"{IVP_BASE_URL}/ivp-web/schedule/index.php"
@@ -148,127 +149,151 @@ def scrape_aws_detail_time(detail_url):
         pass
     return None, None
 
-def scrape_aws_seminars(max_pages=2, fetch_details=False):
+def _infer_aws_place(title):
+    t_lower = title.lower()
+    if "zoom" in t_lower:
+        return "オンライン (Zoom)"
+    if any(k in title for k in ["動画販売", "収録配信", "収録販売"]):
+        return "オンライン (動画・収録配信)"
+    if "東京" in title:
+        return "東京"
+    if "大阪" in title:
+        return "大阪"
+    if "名古屋" in title:
+        return "名古屋"
+    if "対面" in title:
+        return "対面会場"
+    return "AWARENESS"
+
+def scrape_aws_seminars(max_pages=5, fetch_details=False):
     """
-    Scrapes the list of AWS seminars from the main scheduler page.
-    Uses parallel fetching for list pages and details.
+    Scrapes AWS seminars from the official monthly calendar pages (/seminar2/calendar/YYYYMM).
+    Fetches `max_pages` months starting from the current month in parallel.
     """
     events = []
-    session = requests.Session()
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
     }
-    session.headers.update(headers)
-    
-    # 1. Collect list items in parallel
+
+    today = datetime.date.today()
+    target_months = []
+    for i in range(max_pages):
+        m_year = today.year
+        m_month = today.month + i
+        while m_month > 12:
+            m_month -= 12
+            m_year += 1
+        target_months.append((m_year, m_month))
+
+    # 1. Collect monthly calendar items in parallel
     from concurrent.futures import ThreadPoolExecutor
     raw_items = []
-    
-    def fetch_list_page(page):
-        url = f"{AWS_LIST_URL}?page={page}"
+
+    def fetch_calendar_month(ym_tuple):
+        m_year, m_month = ym_tuple
+        ym_str = f"{m_year}{m_month:02d}"
+        url = f"{AWS_CALENDAR_URL}/{ym_str}"
         try:
-            res = session.get(url, timeout=10)
+            res = requests.get(url, headers=headers, timeout=15)
             res.raise_for_status()
             soup = BeautifulSoup(res.text, "html.parser")
-            
-            list_container = soup.find("ul", class_="seminar-list")
-            if not list_container:
-                return []
-                
-            items = list_container.find_all("li")
-            page_items = []
-            for item in items:
-                link_el = item.find("a", class_="zoom-hover")
-                if not link_el:
+
+            year, month = m_year, m_month
+            header_el = soup.find("span", class_="header-title-date")
+            if header_el:
+                m = re.search(r'(\d{4})年\s*(\d{1,2})月', header_el.get_text())
+                if m:
+                    year = int(m.group(1))
+                    month = int(m.group(2))
+
+            month_items = []
+            for dd in soup.find_all("dd", class_="day"):
+                num_el = dd.find("span", class_="number")
+                if not num_el:
                     continue
-                
-                href = link_el.get("href", "")
-                img_el = link_el.find("img")
-                img_src = img_el.get("src", "") if img_el else ""
-                title_el = link_el.find("h3", class_="list-ttl")
-                title = title_el.get_text(strip=True) if title_el else "無題のセミナー"
-                day_el = link_el.find("span", class_="day")
-                day_text = day_el.get_text(strip=True) if day_el else ""
-                place_el = link_el.find("span", class_="place")
-                place = place_el.get_text(strip=True).replace("会場：", "").strip() if place_el else "未定"
-                
-                page_items.append({
-                    "href": href,
-                    "img_src": img_src,
-                    "title": title,
-                    "day_text": day_text,
-                    "place": place
-                })
-            return page_items
+                day_text = num_el.get_text(strip=True)
+                if not day_text.isdigit():
+                    continue
+                try:
+                    event_date = datetime.date(year, month, int(day_text))
+                except ValueError:
+                    continue
+
+                for ttl_div in dd.find_all("div", class_="event-ttl"):
+                    link_el = ttl_div.find("a", href=True)
+                    if not link_el:
+                        continue
+                    href = link_el.get("href", "").strip()
+                    title = link_el.get_text(strip=True) or "無題のセミナー"
+                    month_items.append({
+                        "href": href,
+                        "title": title,
+                        "event_date": event_date,
+                        "place": _infer_aws_place(title)
+                    })
+            return month_items
         except Exception as e:
-            st.error(f"AWSスクレイピングエラー（P.{page}）: {e}")
+            st.error(f"AWSカレンダースクレイピングエラー（{m_year}年{m_month}月）: {e}")
             return []
 
-    with ThreadPoolExecutor(max_workers=max_pages) as executor:
-        results = executor.map(fetch_list_page, range(1, max_pages + 1))
+    with ThreadPoolExecutor(max_workers=max(1, min(max_pages, 6))) as executor:
+        results = executor.map(fetch_calendar_month, target_months)
         for res_items in results:
             raw_items.extend(res_items)
 
     # 2. Fetch details in parallel if requested
     detail_times = {}
     if fetch_details and raw_items:
-        from concurrent.futures import ThreadPoolExecutor
-        urls_to_scrape = list(set(item["href"] for item in raw_items))
-        
+        urls_to_scrape = list(set(item["href"] for item in raw_items if item["href"]))
+
         def worker(url):
             try:
                 st_time, en_time = scrape_aws_detail_time(url)
                 return url, (st_time, en_time)
             except Exception:
                 return url, (None, None)
-                
+
         with ThreadPoolExecutor(max_workers=24) as executor:
             results = executor.map(worker, urls_to_scrape)
             for url, times in results:
                 detail_times[url] = times
 
-    # 3. Build events list
+    # 3. Build events list (deduplicated by href + date)
+    seen = set()
     for item in raw_items:
         href = item["href"]
+        event_date = item["event_date"]
+        date_iso = event_date.isoformat()
+        dedup_key = (href, date_iso, item["title"])
+        if dedup_key in seen:
+            continue
+        seen.add(dedup_key)
+
         detail_url = href if href.startswith("http") else AWS_BASE_URL + href
-        img_src = item["img_src"]
-        if img_src and not img_src.startswith("http"):
-            img_src = AWS_BASE_URL + img_src
-            
         title = item["title"]
-        day_text_clean = item["day_text"].replace("日程：", "").strip()
         place = item["place"]
-        
-        date_parts = re.split(r'[~～]', day_text_clean)
-        start_date = parse_date_with_year(date_parts[0])
-        
-        if start_date:
-            end_date = start_date
-            if len(date_parts) > 1:
-                parsed_end = parse_date_with_year(date_parts[1])
-                if parsed_end:
-                    end_date = parsed_end
-            
-            start_time, end_time = None, None
-            if fetch_details:
-                start_time, end_time = detail_times.get(href, (None, None))
-                
-            start_dt = f"{start_date.isoformat()}T{start_time}:00" if start_time else start_date.isoformat()
-            end_dt = f"{end_date.isoformat()}T{end_time}:00" if end_time else end_date.isoformat()
-            
-            events.append({
-                "id": f"aws_{href.split('/')[-1]}",
-                "title": title,
-                "start": start_dt,
-                "end": end_dt,
-                "allDay": start_time is None,
-                "url": detail_url,
-                "color": "#1f77b4",  # AWS: Corporate blue
-                "place": place,
-                "image": img_src,
-                "raw_date": day_text_clean,
-                "source": "AWS"
-            })
+
+        start_time, end_time = None, None
+        if fetch_details and href:
+            start_time, end_time = detail_times.get(href, (None, None))
+
+        start_dt = f"{date_iso}T{start_time}:00" if start_time else date_iso
+        end_dt = f"{date_iso}T{end_time}:00" if end_time else date_iso
+        slug = href.rstrip("/").split("/")[-1] if href else str(abs(hash(title)) % 100000)
+
+        events.append({
+            "id": f"aws_{slug}_{date_iso}",
+            "title": title,
+            "start": start_dt,
+            "end": end_dt,
+            "allDay": start_time is None,
+            "url": detail_url,
+            "color": "#1f77b4",  # AWS: Corporate blue
+            "place": place,
+            "image": "",
+            "raw_date": f"{event_date.month}月{event_date.day}日",
+            "source": "AWS"
+        })
     return events
 
 
