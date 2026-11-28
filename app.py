@@ -92,31 +92,47 @@ st.markdown("""
     html, body, [class*="css"] {
         font-family: 'Noto Sans JP', 'Outfit', sans-serif;
     }
+
+    /* メインコンテナの最大幅を制限して全画面時の横伸びを防止 */
+    .block-container {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+        padding-top: 1.2rem !important;
+        padding-bottom: 1rem !important;
+        padding-left: 1.25rem !important;
+        padding-right: 1.25rem !important;
+    }
     
     .main-title {
         font-family: 'Outfit', 'Noto Sans JP', sans-serif;
         font-weight: 700;
-        font-size: 2.8rem;
+        font-size: 2.0rem;
         background: linear-gradient(135deg, #1f77b4 0%, #ff7f0e 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.1rem;
     }
     
     .sub-title {
-        font-size: 1.1rem;
+        font-size: 0.95rem;
         color: #666;
-        margin-bottom: 2rem;
+        margin-bottom: 0.75rem;
     }
     
     /* Stat Cards */
+    .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
     .stat-card {
         background-color: #f8f9fa;
         border-left: 5px solid #1f77b4;
         border-radius: 6px;
-        padding: 1rem;
+        padding: 0.65rem 0.9rem;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 1rem;
+        margin-bottom: 0;
     }
     .stat-card.ivp {
         border-left-color: #ff7f0e;
@@ -125,13 +141,13 @@ st.markdown("""
         border-left-color: #2ca02c;
     }
     .stat-title {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         color: #6c757d;
         text-transform: uppercase;
         font-weight: 600;
     }
     .stat-value {
-        font-size: 1.8rem;
+        font-size: 1.45rem;
         font-weight: 700;
         color: #212529;
     }
@@ -171,23 +187,36 @@ st.markdown("""
 
     /* Mobile Responsive */
     @media (max-width: 768px) {
+        .block-container {
+            padding-top: 0.75rem !important;
+            padding-left: 0.5rem !important;
+            padding-right: 0.5rem !important;
+        }
         .main-title {
-            font-size: 1.6rem !important;
+            font-size: 1.4rem !important;
         }
         .sub-title {
-            font-size: 0.85rem !important;
+            font-size: 0.8rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        .stat-grid {
+            gap: 0.4rem;
+            margin-bottom: 0.5rem;
         }
         .stat-value {
-            font-size: 1.3rem !important;
+            font-size: 1.15rem !important;
         }
         .stat-title {
-            font-size: 0.7rem !important;
+            font-size: 0.65rem !important;
         }
         .stat-card {
-            padding: 0.6rem !important;
+            padding: 0.45rem 0.5rem !important;
         }
         .event-card {
             padding: 0.8rem;
+        }
+        iframe {
+            height: 580px !important;
         }
     }
 </style>
@@ -365,28 +394,23 @@ aws_count = sum(1 for e in events if e['source'] == 'AWS')
 ivp_count = sum(1 for e in events if e['source'] == 'IVP')
 total_count = len(events)
 
-col1, col2, col3 = st.columns(3)
-with col1:
-    st.markdown(f"""
+ivp_display = ivp_count if st.session_state['ivp_session'] else '未接続'
+st.markdown(f"""
+<div class="stat-grid">
     <div class="stat-card total">
         <div class="stat-title">全イベント数</div>
         <div class="stat-value">{total_count}</div>
     </div>
-    """, unsafe_allow_html=True)
-with col2:
-    st.markdown(f"""
     <div class="stat-card">
         <div class="stat-title">AWSセミナー数</div>
         <div class="stat-value">{aws_count}</div>
     </div>
-    """, unsafe_allow_html=True)
-with col3:
-    st.markdown(f"""
     <div class="stat-card ivp">
         <div class="stat-title">IVPイベント数（同期中）</div>
-        <div class="stat-value">{ivp_count if st.session_state['ivp_session'] else '未接続'}</div>
+        <div class="stat-value">{ivp_display}</div>
     </div>
-    """, unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
 
 
 # ==========================================
@@ -462,20 +486,43 @@ with tab_calendar:
     <html lang="ja">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
         <style>
             html, body {{
                 margin: 0;
                 padding: 0;
+                height: 100%;
+                overflow: hidden;
                 font-family: 'Noto Sans JP', sans-serif;
-                font-size: 14px;
+                font-size: 13px;
                 background-color: #ffffff;
             }}
             #calendar {{
+                height: calc(100% - 12px);
                 max-width: 100%;
-                margin: 10px auto;
-                padding: 0 10px;
+                margin: 6px auto;
+                padding: 0 6px;
+                box-sizing: border-box;
+            }}
+            .fc .fc-toolbar.fc-header-toolbar {{
+                margin-bottom: 0.5em;
+            }}
+            .fc .fc-daygrid-day-top {{
+                font-size: 0.85em;
+            }}
+            .fc .fc-daygrid-event {{
+                font-size: 0.8em;
+                padding: 1px 3px;
+                margin-bottom: 1px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }}
+            .fc .fc-daygrid-more-link {{
+                font-size: 0.78em;
+                font-weight: 600;
             }}
             .fc-event {{
                 cursor: pointer;
@@ -489,22 +536,26 @@ with tab_calendar:
                 html, body {{
                     font-size: 11px;
                 }}
+                #calendar {{
+                    padding: 0 2px;
+                }}
                 .fc .fc-toolbar {{
                     flex-wrap: wrap;
                     gap: 4px;
                 }}
                 .fc .fc-toolbar-title {{
-                    font-size: 1.1em !important;
+                    font-size: 1.05em !important;
                 }}
                 .fc .fc-button {{
-                    padding: 0.2em 0.4em !important;
+                    padding: 0.2em 0.45em !important;
                     font-size: 0.85em !important;
                 }}
                 .fc .fc-daygrid-event {{
-                    font-size: 0.75em;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
+                    font-size: 0.72em;
+                    padding: 0 2px;
+                }}
+                .fc .fc-daygrid-more-link {{
+                    font-size: 0.72em;
                 }}
                 .fc .fc-list-event-title {{
                     font-size: 0.9em;
@@ -522,6 +573,13 @@ with tab_calendar:
                 var calendar = new FullCalendar.Calendar(calendarEl, {{
                     initialView: 'dayGridMonth',
                     locale: 'ja',
+                    height: '100%',
+                    expandRows: true,
+                    fixedWeekCount: false,
+                    dayMaxEvents: true,
+                    moreLinkText: function(n) {{
+                        return '他' + n + '件';
+                    }},
                     headerToolbar: {{
                         left: 'prev,next today',
                         center: 'title',
@@ -553,7 +611,7 @@ with tab_calendar:
     </html>
     """
     
-    st.components.v1.html(calendar_html, height=750, scrolling=True)
+    st.components.v1.html(calendar_html, height=820, scrolling=False)
 
 
 # --- Tab 2: Table & Search ---
